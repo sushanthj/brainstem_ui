@@ -1017,7 +1017,7 @@ class main(QMainWindow):
             self.json_next_img()
         elif event.key() == Qt.Key_Left or event.key() == Qt.Key_A:
             self.json_prev_img()
-        elif event.key() == Qt.Key_T:
+        elif event.key() == Qt.Key_F:
             if self.drawing == True:
                 self.drawing = False
                 self.scene.indicator = False
@@ -1038,7 +1038,7 @@ class main(QMainWindow):
                 self.indicator = ''
                 self.drawing = True
                 self.scene.indicator = True
-        elif event.key() == Qt.Key_G:
+        elif event.key() == Qt.Key_Space:
             if self.redraw_box_tracker == False:
                 self.add_box_to_json()
             else:
