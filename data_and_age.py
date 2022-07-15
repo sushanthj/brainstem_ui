@@ -23,7 +23,7 @@ from PyQt5.QtWidgets import *
 ## Selective Dataset Review Version
 ## Trial with changing jsons
 
-AGE_GROUP_DICT = {1:"age 0-10", 2:"age 10-20", 3:"age 20-30", 4:"age 30-40", 5:"age 40+"}
+AGE_GROUP_DICT = {1:"Superior_Colliculus", 2:"Inferior_Colliculus", 3:"Red_Nucleus", 4:"Inferior_Olive", 5:"Corticospinal_Tract"}
 
 # Create our custom QGraphicsScene
 class MyGraphicsScene(QGraphicsScene):

@@ -7,7 +7,7 @@ from copy import deepcopy
 
 ## Selective Dataset Review Version
 
-AGE_GROUP_DICT = {1:"age 0-10", 2:"age 10-20", 3:"age 20-30", 4:"age 30-40", 5:"age 40+"}
+AGE_GROUP_DICT = {1:"Superior_Colliculus", 2:"Inferior_Colliculus", 3:"Red_Nucleus", 4:"Inferior_Olive", 5:"Corticospinal_Tract"}
 
 class Images:
     def __init__(self, img_selected, ann, box_dict):
@@ -30,12 +30,29 @@ class Images:
         self.left, self.right, self.top, self.bottom = None, None, None, None
 
     def add_bbox(self):
-        box_img = None
-        scale_factor_x = 744/self.img.shape[1]
-        scale_factor_y = 744/self.img.shape[0]
+        box_img = self.img
+        box_thickness = 2 #* scale_to_draw_box
+        text_thickness = 2 #* scale_to_draw_box
         box_count = 0
         image_skip = 0
 
+        if box_img is not None:
+            if self.img.shape[0] == 744 and self.img.shape[1] == 744:
+                self.resized_img = box_img
+            else:
+                self.resized_img = cv2.resize(box_img, (self.img_width, self.img_height))
+                self.resize_tracker = True
+        else:
+            self.resized_img = np.zeros((744,744,3), np.uint8) # create an empty image
+            self.resized_img = cv2.putText(self.resized_img, "Image Not Found",(10,300),
+                                                            cv2.FONT_HERSHEY_SIMPLEX, 2, 
+                                                            (255,255,255), text_thickness)
+            return self.resized_img, 1,1,1
+        
+        scale_factor_x = 744/self.img.shape[1]
+        scale_factor_y = 744/self.img.shape[0]
+        #scale_to_draw_box = math.ceil(self.img.shape[1]/744)
+        
         for i in range(len(self.box_dict)):
             bbox_coordinates, box_skip_status = self.get_active_box_coordinates(i)
             if box_skip_status == 'box_skipped':
@@ -44,28 +61,17 @@ class Images:
                 box_count += 1
             elif bbox_coordinates is not None:
                 box_count += 1
-                #print("bbox_coords are", bbox_coordinates)
                 xmin, ymin, xmax, ymax = bbox_coordinates
-                box_img = cv2.rectangle(self.img, (xmin,ymin), (xmax,ymax),(75,61,219), 3)
+                #scale down coords
+                xmin2 = math.floor(xmin*scale_factor_x)
+                ymin2 = math.floor(ymin*scale_factor_y)
+                xmax2 = math.ceil(xmax*scale_factor_x)
+                ymax2 = math.ceil(ymax*scale_factor_y)
+                self.resized_img = cv2.rectangle(self.resized_img, (xmin2,ymin2), (xmax2,ymax2),(75,61,219), box_thickness)
                 if self.box_dict[i]['box_age'] != 0:
                     text_to_draw = AGE_GROUP_DICT[self.box_dict[i]['box_age']]
-                    box_img = cv2.putText(box_img, text_to_draw, (xmin+30, ymin+30),
-                                            cv2.FONT_HERSHEY_SIMPLEX, 2, (255,0,0), 3)
-
-        if self.img.shape[0] == 744 and self.img.shape[1] == 744:
-            if box_img is not None:
-                self.resized_img = box_img
-            else:
-                self.resized_img = self.img
-        else:
-            if box_img is not None:
-                self.resized_img = cv2.resize(box_img, (self.img_width, self.img_height))
-                self.resize_tracker = True
-                #print(self.img.shape)
-            else:
-                self.resized_img = cv2.resize(self.img, (self.img_width, self.img_height))
-                self.resize_tracker = True
-                #print(self.img.shape)
+                    self.resized_img = cv2.putText(self.resized_img, text_to_draw, (xmin2+2, ymin2-5),
+                                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,0,0), text_thickness)
         
         if box_count > 0:
             image_skip = 1
@@ -143,8 +149,8 @@ class Images:
                     xmin, ymin, xmax, ymax = bbox_coordinates
                     #scale down coords
                     xmin2 = int(xmin*scale_factor_x)
-                    ymin2 = int(ymin*scale_factor_x)
-                    xmax2 = int(xmax*scale_factor_y)
+                    ymin2 = int(ymin*scale_factor_y)
+                    xmax2 = int(xmax*scale_factor_x)
                     ymax2 = int(ymax*scale_factor_y)
 
                     #compare with click coords to see if we fall within area
