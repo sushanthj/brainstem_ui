@@ -1013,7 +1013,7 @@ class main(QMainWindow):
 
     # function to detect keyboard key press
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Right or event.key() == Qt.Key_D or event.key() == Qt.Key_Space:
+        if event.key() == Qt.Key_Right or event.key() == Qt.Key_D:
             self.json_next_img()
         elif event.key() == Qt.Key_Left or event.key() == Qt.Key_A:
             self.json_prev_img()
